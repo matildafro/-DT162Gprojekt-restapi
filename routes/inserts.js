@@ -31,29 +31,32 @@ db.once('open', function (callback) { // Lyssnar efter databas-händelser
 	var Insert = mongoose.model('Insert', insertSchema )
 
 /********************************************* 
- * Get complete inserts listing
+ * GET - hämtar lista på alla element i databas
  *********************************************/
 router.get('/', function(req, res, next) {
 
 	// Läs ut från databasen
 	Insert.find(function(err, inserts) {
 		if(err) return console.error(err);  
+		//skapar json-objekt
 		var jsonObj = JSON.stringify(inserts);
 		res.contentType('application/json');
+		//skicka objekt
 		res.send(jsonObj);
 	  });
 	});
 
 /********************************************* 
- * Get unique insert id
+ * GET - hämtar angivet id
  *********************************************/
  router.get('/:id', function(req, res, next) {
 
 	var id = req.params.id;
 	var ind = -1;
-
+	//använder skapad modell för att hitta
 	Insert.find(function(err, inserts) {
 		if(err) return console.error(err);  
+		//loopar igenom all data för att hitta valt index
 	for(var i=0; i < inserts.length; i++){
 		if(inserts[i]._id == id) ind = i; // Hitta arrayen med index som har _id = id   
 	} 
@@ -64,7 +67,7 @@ router.get('/', function(req, res, next) {
 });
 
 /********************************************* 
- * Delete unique insert id
+ * DELETE - Raderar valt id
  *********************************************/
 router.delete('/:id', function(req, res, next) {
 	var id = req.params.id;
@@ -85,7 +88,7 @@ Insert.find(function(err, inserts) {
 
 
 /********************************************* 
- * Add new insert
+ * CREATE - Lägg till ny data i databasen
  *********************************************/
 router.post('/', function(req, res, next) {
     // Skapa ny kurs
@@ -107,11 +110,13 @@ router.post('/', function(req, res, next) {
 });
 
 /********************************************* 
- * Update one insert
+ * UPDATE - Uppdatera vald data
  *********************************************/
 router.put('/:id', async (req, res) => {
     const id = req.params.id;
+	//skapar updates som tomt objekt
     let updates={}
+	//fyller objekt med vald data
     if (req.body.name) {
         updates["name"] = req.body.name
     }
@@ -124,6 +129,7 @@ router.put('/:id', async (req, res) => {
 	if (req.body.points) {
         updates["points"] = req.body.points
     }
+	//skicka objekt genom att hitta rätt element med id
     Insert.findByIdAndUpdate(id, updates,
         function (err, docs) {
             if (err){
@@ -131,6 +137,7 @@ router.put('/:id', async (req, res) => {
             }
             else{
                 console.log("Updated course : ", docs);
+				//skicka svar
 				res.send(updates)
             }
         });
